@@ -1,4 +1,7 @@
-function readFile(filename)
+utils = require "utils"
+
+local IO = {}
+function IO.readFile(filename)
     local game = {life = 0, maze = {}}
 
     local row = 0
@@ -23,14 +26,18 @@ function readFile(filename)
     return game
 end
 
-function writeFile(game)
+function IO.writeFile(game)
     local file = io.open("output.txt", "w")
     file:write(game.life .. "\r")
     local row = ""
     for r = 1, #game.maze do
-        for c = 1, #game.maze[r] do row = row .. game.maze[r][c] end
+        for c = 1, #game.maze[r] do
+            row = row .. game.maze[r][c]
+        end
         file:write(row .. "\r")
         row = ""
     end
     file.close()
 end
+
+return IO
