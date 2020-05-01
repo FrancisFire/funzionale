@@ -2,13 +2,12 @@ utils = require "utils"
 
 local IO = {}
 function IO.readFile(filename)
-    local game = {life = 0, maze = {}}
+    local game = {}
 
     local row = 0
-
+    game.maze = {}
     for line in io.lines(filename, "l") do
         line = string.gsub(line, "\r", "")
-
         local column = 1
         if (row == 0) then
             game.life = tonumber(line)
@@ -39,5 +38,7 @@ function IO.writeFile(game)
     end
     file.close()
 end
+
+IO.writeFile(IO.readFile("input.txt"))
 
 return IO
