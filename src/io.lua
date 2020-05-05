@@ -30,9 +30,9 @@ function IO.writeFile(game)
     local file = io.open("output.txt", "w")
     file:write(game.life .. "\r")
     local row = ""
-    for r = 1, #game.maze do
-        for c = 1, #game.maze[r] do
-            row = row .. game.maze[r][c]
+    for r, column in pairs(game.maze) do
+        for c, cell in pairs(column) do
+            row = row .. cell
         end
         file:write(row .. "\r")
         row = ""
