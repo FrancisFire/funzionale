@@ -1,26 +1,24 @@
 local Utils = {}
 
-Utils.Directions = {}
-
-function Utils.Directions.up(row, column)
-    return row, column + 1
-end
-
-function Utils.Directions.down(row, column)
-    return row, column - 1
-end
-function Utils.Directions.left(row, column)
-    return row - 1, column
-end
-
-function Utils.Directions.right(row, column)
-    return row + 1, column
-end
+Utils.Directions = {
+    function(row, column)
+        return row, column + 1
+    end,
+    function(row, column)
+        return row, column - 1
+    end,
+    function(row, column)
+        return row + 1, column
+    end,
+    function(row, column)
+        return row - 1, column
+    end
+}
 
 function Utils.getGoals(maze)
     local goals = {}
-    for r, column in pairs(maze) do
-        for c, cell in pairs(column) do
+    for r, column in ipairs(maze) do
+        for c, cell in ipairs(column) do
             if cell == "u" then
                 table.insert(goals, {row = r, column = c})
             end
@@ -30,8 +28,8 @@ function Utils.getGoals(maze)
 end
 
 function Utils.getStart(maze)
-    for r, column in pairs(maze) do
-        for c, cell in pairs(column) do
+    for r, column in ipairs(maze) do
+        for c, cell in ipairs(column) do
             if cell == "i" then
                 return {row = r, column = c}
             end
@@ -41,13 +39,24 @@ end
 
 function Utils.cloneMaze(maze)
     local clone = {}
-    for r, column in pairs(maze) do
+    for r, column in ipairs(maze) do
         clone[r] = {}
-        for c, cell in pairs(column) do
+        for c, cell in ipairs(column) do
             clone[r][c] = cell
         end
     end
     return clone
+end
+
+function Utils.printMaze(maze)
+    local row = ""
+    for r, column in ipairs(maze) do
+        for c, cell in ipairs(column) do
+            row = row .. cell
+        end
+        print(row)
+        row = ""
+    end
 end
 
 return Utils

@@ -24,12 +24,13 @@ function IO.readFile(filename)
     return game
 end
 
-function IO.writeFile(game)
+function IO.writeFile(game, rowStart, columnStart)
+    game.maze[rowStart][columnStart] = "i"
     local file = io.open("output.txt", "w")
     file:write(game.life .. "\r")
     local row = ""
     for r, column in ipairs(game.maze) do
-        for c, cell in pairs(column) do
+        for c, cell in ipairs(column) do
             row = row .. cell
         end
         file:write(row .. "\r")
@@ -38,7 +39,7 @@ function IO.writeFile(game)
     file.close()
 end
 
-function IO.verifyCell(cellValue)
+function verifyCell(cellValue)
     local acceptedCellValues = {
         ["0"] = true,
         ["1"] = true,
