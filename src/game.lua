@@ -1,7 +1,9 @@
 utils = require "utils"
 inputoutput = require "inputoutput"
 
-function move(maze, row, column, steps, life)
+game = {}
+
+function game.move(maze, row, column, steps, life)
     local newSteps = steps + 1
     local result = applyCellEffect(maze, row, column, life)
     local newLife = result.life
@@ -15,10 +17,8 @@ function move(maze, row, column, steps, life)
         for k, newDir in pairs(utils.Directions) do
             local x, y = newDir(row, column)
 
-            local subRes = move(tracedMaze, x, y, newSteps, newLife)
+            local subRes = game.move(tracedMaze, x, y, newSteps, newLife)
             if (subRes.win) then
-                -- [[ print("Percorso vincente: " .. " Passi: " .. subRes.steps .. " Vita: " .. subRes.life)]]
-
                 table.insert(results, subRes)
             end
         end
@@ -108,37 +108,20 @@ function applyCellEffect(maze, row, column, life)
             return 0
         end
     }
-    --[[ print(
-        "Riga " ..
-            row ..
-                " Colonna " ..
-                    column ..
-                        " Vita " ..
-                            life ..
-                                " Cella " ..
-                                    cellValue ..
-                                        " Nuova vita " ..
-                                            lifeFunctions[cellValue](life) ..
-                                                " Vinto " ..
-                                                    (cellValue == "u" and "true" or "false") ..
-                                                        " Perso " ..
-                                                            (lifeFunctions[cellValue](life) <= 0 and "true" or "false")
-    )]]
-    return {life = lifeFunctions[cellValue](life), lose = lifeFunctions[cellValue](life) <= 0, win = cellValue == "u"}
+     --
+    --[[utils.printMove(
+        row,
+        column,
+        life,
+        cellValue,
+        lifeFunctions[cellValue](life),
+        (cellValue == "u" and "true" or "false"),
+        (lifeFunctions[cellValue](life) <= 0 and "true" or "false")
+    )]] return {
+        life = lifeFunctions[cellValue](life),
+        lose = lifeFunctions[cellValue](life) <= 0,
+        win = cellValue == "u"
+    }
 end
 
-function startUp(fileName)
-    local game = inputoutput.readFile(fileName)
-    local start = utils.getStart(game.maze)
-    print("Avvio")
-    print("Vita di partenza " .. game.life)
-    utils.printMaze(game.maze)
-    local result = move(game.maze, start.row, start.column, 0, game.life)
-    local gameResult = {life = result.life, maze = result.maze}
-    print("Risultato finale")
-    print("Vita finale " .. gameResult.life)
-    utils.printMaze(gameResult.maze)
-    inputoutput.writeFile(gameResult, start.row, start.column)
-end
-
-startUp("input.txt")
+return game

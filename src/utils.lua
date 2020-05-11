@@ -59,4 +59,17 @@ function Utils.printMaze(maze)
     end
 end
 
+function Utils.printMove(row, column, life, cellValue, newLife, win, lost)
+    print(
+        "Riga " ..
+            row ..
+                " Colonna " ..
+                    column ..
+                        " Vita " ..
+                            life ..
+                                " Cella " ..
+                                    cellValue .. " Nuova vita " .. newLife .. " Vinto " .. win .. " Perso " .. lost
+    )
+end
+
 return Utils
