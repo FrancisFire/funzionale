@@ -1,6 +1,6 @@
-local Utils = {}
+local utilsExport = {}
 
-Utils.Directions = {
+utilsExport.Directions = {
     function(row, column)
         return row, column + 1
     end,
@@ -15,7 +15,7 @@ Utils.Directions = {
     end
 }
 
-function Utils.getGoals(maze)
+function utilsExport.getGoals(maze)
     local goals = {}
     for r, column in ipairs(maze) do
         for c, cell in ipairs(column) do
@@ -27,7 +27,7 @@ function Utils.getGoals(maze)
     return goals
 end
 
-function Utils.getStart(maze)
+function utilsExport.getStart(maze)
     for r, column in ipairs(maze) do
         for c, cell in ipairs(column) do
             if cell == "i" then
@@ -37,7 +37,7 @@ function Utils.getStart(maze)
     end
 end
 
-function Utils.cloneMaze(maze)
+function utilsExport.cloneMaze(maze)
     local clone = {}
     for r, column in ipairs(maze) do
         clone[r] = {}
@@ -48,7 +48,7 @@ function Utils.cloneMaze(maze)
     return clone
 end
 
-function Utils.printMaze(maze)
+function utilsExport.printMaze(maze)
     local row = ""
     for r, column in ipairs(maze) do
         for c, cell in ipairs(column) do
@@ -59,7 +59,7 @@ function Utils.printMaze(maze)
     end
 end
 
-function Utils.printMove(row, column, life, cellValue, newLife, win, lost)
+function utilsExport.printMove(row, column, life, cellValue, newLife, win, lost)
     print(
         "Riga " ..
             row ..
@@ -72,4 +72,4 @@ function Utils.printMove(row, column, life, cellValue, newLife, win, lost)
     )
 end
 
-return Utils
+return utilsExport

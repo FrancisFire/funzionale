@@ -1,37 +1,22 @@
-utils = require "utils"
-inputoutput = require "inputoutput"
+local utils = require "utils"
+local inputoutput = require "inputoutput"
+local gameExport = {}
 
-game = {}
-
-function game.move(maze, row, column, steps, life)
+function gameExport.move(maze, row, column, steps, life)
     local newSteps = steps + 1
     local result = applyCellEffect(maze, row, column, life)
     local newLife = result.life
-    if (result.lose) then
-        return {maze = maze, steps = newSteps, life = newLife, win = false}
-    elseif (result.win) then
-        return {maze = maze, steps = newSteps, life = newLife, win = true}
-    else
-        local tracedMaze = traceMaze(maze, row, column)
-        local results = {}
-        for k, newDir in pairs(utils.Directions) do
-            local x, y = newDir(row, column)
-
-            local subRes = game.move(tracedMaze, x, y, newSteps, newLife)
-            if (subRes.win) then
-                table.insert(results, subRes)
-            end
-        end
-        local result = calcOptimalResult(results)
-        if (result == nil) then
-            return {maze = maze, steps = newSteps, life = newLife, win = false}
-        else
-            return result
-        end
+    local nextLevelScheduler = coroutine.yield( {maze = maze, steps = newSteps, life = newLife, win = result.win, lose = result.lose} ) 
+    
+    local tracedMaze = traceMaze(maze, row, column)
+    for k, newDir in pairs(utils.Directions) do
+        local x, y = newDir(row, column)
+        nextLevelScheduler:addFunction(coroutine.create(gameExport.move(tracedMaze, x, y, newSteps, newLife, nextLevelScheduler))) --aggiunge nuove direazioni
     end
+    return
 end
 
-function calcOptimalResult(resTable)
+function gameExport.calcOptimalResult(resTable)
     local function func(tmpTable, minimum)
         if (#tmpTable == 0) then
             return minimum
@@ -124,4 +109,4 @@ function applyCellEffect(maze, row, column, life)
     }
 end
 
-return game
+return gameExport

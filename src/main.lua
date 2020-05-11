@@ -1,19 +1,20 @@
-utils = require "utils"
-inputoutput = require "inputoutput"
-game = require "game"
+local Utils = require "utils"
+local Inputoutput = require "inputoutput"
+local Game = require "game"
+local Scheduler = require "scheduler"
 
 function startUp(fileName)
-    local gameSet = inputoutput.readFile(fileName)
-    local start = utils.getStart(gameSet.maze)
+    local gameSet = Inputoutput.readFile(fileName)
+    local start = Utils.getStart(gameSet.maze)
     print("Avvio")
     print("Vita di partenza " .. gameSet.life)
-    utils.printMaze(gameSet.maze)
-    local result = game.move(gameSet.maze, start.row, start.column, 0, gameSet.life)
+    Utils.printMaze(gameSet.maze)
+    local result = Scheduler.execute(gameSet.maze, start.row, start.column, gameSet.life)
     local gameResult = {life = result.life, maze = result.maze}
     print("Risultato finale")
     print("Vita finale " .. gameResult.life)
-    utils.printMaze(gameResult.maze)
-    inputoutput.writeFile(gameResult, start.row, start.column)
+    Utils.printMaze(gameResult.maze)
+    Inputoutput.writeFile(gameResult, start.row, start.column)
 end
 
 startUp("input.txt")

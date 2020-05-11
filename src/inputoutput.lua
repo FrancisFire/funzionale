@@ -1,6 +1,6 @@
-local IO = {}
+local IOExport = {}
 
-function IO.readFile(filename)
+function IOExport.readFile(filename)
     local game = {}
 
     local row = 0
@@ -24,7 +24,7 @@ function IO.readFile(filename)
     return game
 end
 
-function IO.writeFile(game, rowStart, columnStart)
+function IOExport.writeFile(game, rowStart, columnStart)
     game.maze[rowStart][columnStart] = "i"
     local file = io.open("output.txt", "w")
     file:write(game.life .. "\r")
@@ -60,4 +60,4 @@ function verifyCell(cellValue)
     return (acceptedCellValues[cellValue]) and cellValue or "m"
 end
 
-return IO
+return IOExport
