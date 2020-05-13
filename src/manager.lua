@@ -85,6 +85,8 @@ function compareCellValues(managerTable)
 end
 
 function scheduleNextMoves(functionsTable)
+    print("Funzioni prima dello schedule " .. #functionsTable)
+
     local nextLevelManager = gameManagerExport.getNewManagerTable()
     for _, moveFunction in pairs(functionsTable) do --interagisco con ogni funzione che può continuare il gioco
         for i = 1, 4 do
@@ -100,6 +102,8 @@ function scheduleNextMoves(functionsTable)
             nextLevelManager = gameManagerExport.addFunction(nextLevelManager, nextMoveFunction) --aggiungo al manager le funzioni che gestiscono le prossime mosse
         end
     end
+    print("Funzioni prima dopo lo schedule " .. #nextLevelManager)
+
     return nextLevelManager
 end
 

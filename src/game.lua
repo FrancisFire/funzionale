@@ -84,18 +84,19 @@ function getCellEffect(maze, row, column, life)
             return 0
         end
     }
-
+    local newLife = lifeFunctions[cellValue](life)
     --[[printMove(
         row,
         column,
         life,
         cellValue,
-        lifeFunctions[cellValue](life),
+        newLife,
         (cellValue == "u" and "true" or "false"),
-        (lifeFunctions[cellValue](life) <= 0 and "true" or "false")
-    )]] return {
-        life = lifeFunctions[cellValue](life),
-        lose = lifeFunctions[cellValue](life) <= 0,
+        (newLife <= 0 and "true" or "false")
+    )]]
+    return {
+        life = newLife,
+        lose = newLife <= 0,
         win = (cellValue == "u")
     }
 end
