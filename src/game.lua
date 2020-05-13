@@ -12,8 +12,10 @@ function gameExport.getMoveFunction(maze, row, column, steps, life)
             local tracedMaze = traceMaze(maze, row, column)
             for k, newDirection in pairs(Directions) do
                 local newRow, newColumn = newDirection(row, column)
+                local futureParams = getCellEffect(tracedMaze, newRow, newColumn, newLife)
                 coroutine.yield(
                     {
+                        willLose = futureParams.lose,
                         newMaze = tracedMaze,
                         newRow = newRow,
                         newColumn = newColumn,
@@ -85,15 +87,6 @@ function getCellEffect(maze, row, column, life)
         end
     }
     local newLife = lifeFunctions[cellValue](life)
-    --[[printMove(
-        row,
-        column,
-        life,
-        cellValue,
-        newLife,
-        (cellValue == "u" and "true" or "false"),
-        (newLife <= 0 and "true" or "false")
-    )]]
     return {
         life = newLife,
         lose = newLife <= 0,

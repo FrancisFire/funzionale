@@ -56,15 +56,15 @@ function getWinningResults(resultsWithFunctions)
 end
 
 function getToContinueFunctions(resultFunctionTable)
-    print("Funzioni prima del filter " .. #resultFunctionTable)
+    --  print("Funzioni prima del filter " .. #resultFunctionTable)
     local toContinueResultsWithFunctions = -- potrebbe essere vuota
         filter(
-        function(singleTable)
-            return ((not singleTable.result.lose) and (not singleTable.result.win))
+        function(singleResultWithFunction)
+            return (not singleResultWithFunction.result.win)
         end,
         resultFunctionTable
     )
-    print("Funzioni dopo il filter " .. #toContinueResultsWithFunctions)
+    --  print("Funzioni dopo il filter " .. #toContinueResultsWithFunctions)
 
     local toContinueFunctions =
         map(
@@ -85,24 +85,27 @@ function compareCellValues(managerTable)
 end
 
 function scheduleNextMoves(functionsTable)
-    print("Funzioni prima dello schedule " .. #functionsTable)
+    --   print("Funzioni prima dello schedule " .. #functionsTable)
 
     local nextLevelManager = gameManagerExport.getNewManagerTable()
     for _, moveFunction in pairs(functionsTable) do --interagisco con ogni funzione che può continuare il gioco
         for i = 1, 4 do
             local nextMoveParams = moveFunction() --richiamo 4 volte le coroutine che mi danno i parametri per la prossima mossa
-            local nextMoveFunction =
-                Game.getMoveFunction(
-                nextMoveParams.newMaze,
-                nextMoveParams.newRow,
-                nextMoveParams.newColumn,
-                nextMoveParams.newSteps,
-                nextMoveParams.newLife
-            )
-            nextLevelManager = gameManagerExport.addFunction(nextLevelManager, nextMoveFunction) --aggiungo al manager le funzioni che gestiscono le prossime mosse
+
+            if (not nextMoveParams.willLose) then
+                local nextMoveFunction =
+                    Game.getMoveFunction(
+                    nextMoveParams.newMaze,
+                    nextMoveParams.newRow,
+                    nextMoveParams.newColumn,
+                    nextMoveParams.newSteps,
+                    nextMoveParams.newLife
+                )
+                nextLevelManager = gameManagerExport.addFunction(nextLevelManager, nextMoveFunction) --aggiungo al manager le funzioni che gestiscono le prossime mosse
+            end
         end
     end
-    print("Funzioni prima dopo lo schedule " .. #nextLevelManager)
+    --   print("Funzioni dopo lo schedule " .. #nextLevelManager)
 
     return nextLevelManager
 end
@@ -144,12 +147,12 @@ function deepCopyResultTable(resultsTable)
 end
 
 function gameManagerExport.executeMoves(managerTable, index)
-    print("Esecuzione di livello " .. index)
-    print("Celle da analizzare " .. #managerTable)
+    -- print("Esecuzione di livello " .. index)
+    --  print("Celle da analizzare " .. #managerTable)
     local winningResults, toContinueFunctions = compareCellValues(managerTable) --cicla i valori delle caselle dello scheduler e fa i confronti, non ancora funzionale
 
     if next(winningResults) ~= nil then --ci sono caselle vincenti
-        print("Caselle vincenti " .. #winningResults)
+        --     print("Caselle vincenti " .. #winningResults)
         return calcOptimalResult(winningResults)
     end
 
