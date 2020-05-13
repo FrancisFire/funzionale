@@ -5,26 +5,25 @@ local Manager = require "manager"
 function startUp(fileName)
     local gameSet = Inputoutput.readFile(fileName)
     local start = Game.getStart(gameSet.maze)
-    print("Avvio")
-    print("Vita di partenza " .. gameSet.life)
-    Game.printMaze(gameSet.maze)
+    Game.printStep("Avvio", gameSet.life, gameSet.maze)
 
-    local gameManagerTable = Manager.getNewManagerTable()
-    gameManagerTable =
-        Manager.addFunction(gameManagerTable, Game.move(gameSet.maze, start.row, start.column, 0, gameSet.life))
+    local rootManagerTable = Manager.getNewManagerTable()
+    local rootMoveFunction = Game.getMoveFunction(gameSet.maze, start.row, start.column, 0, gameSet.life)
 
-    local result = Manager.executeMoves(gameManagerTable)
-    if (result) then
-        local gameResult = {life = result.life, maze = result.maze}
-        print("Risultato finale")
-        print("Vita finale " .. gameResult.life)
-        Game.printMaze(gameResult.maze)
-        Inputoutput.writeFile(gameResult, start.row, start.column)
+    rootManagerTable = Manager.addFunction(rootManagerTable, rootMoveFunction)
+    local result = Manager.executeMoves(rootManagerTable, 1)
+
+    if (result ~= nil) then
+        do
+            local gameResult = {life = result.life, maze = result.maze}
+            Game.printStep("Risultato finale", gameResult.life, gameResult.maze)
+            Inputoutput.writeFile(gameResult.life, gameResult.maze, start.row, start.column)
+        end
     else
-        print("Soluzione non presente")
-        print("Vita finale " .. gameSet.life)
-        Game.printMaze(gameSet.maze)
-        Inputoutput.writeFile(gameSet, start.row, start.column)
+        do
+            Game.printStep("Soluzione non presente", gameSet.life, gameSet.maze)
+            Inputoutput.writeFile(gameSet.life, gameSet.maze, start.row, start.column)
+        end
     end
 end
 

@@ -1,24 +1,27 @@
 local gameExport = {}
-local Manager = require "manager"
 
-function gameExport.move(maze, row, column, steps, life)
+function gameExport.getMoveFunction(maze, row, column, steps, life)
     return coroutine.wrap(
         function()
-            --print("Prima parte")
             local newSteps = steps + 1
             local result = getCellEffect(maze, row, column, life)
             local newLife = result.life
-            local nextLevelManager =
-                coroutine.yield({maze = maze, steps = newSteps, life = newLife, win = result.win, lose = result.lose})
-            -- print("Seconda parte")
+
+            coroutine.yield({maze = maze, steps = newSteps, life = newLife, win = result.win, lose = result.lose}) -- ritorna l'analisi della casella
+
             local tracedMaze = traceMaze(maze, row, column)
-            for k, newDir in pairs(Directions) do
-                local x, y = newDir(row, column)
-                nextLevelManager =
-                    Manager.addFunction(nextLevelManager, gameExport.move(tracedMaze, x, y, newSteps, newLife)) --aggiunge nuove direazioni
+            for k, newDirection in pairs(Directions) do
+                local newRow, newColumn = newDirection(row, column)
+                coroutine.yield(
+                    {
+                        newMaze = tracedMaze,
+                        newRow = newRow,
+                        newColumn = newColumn,
+                        newSteps = newSteps,
+                        newLife = newLife
+                    }
+                ) --calcolo dei parametri per le mosse successive
             end
-            --print("Fine move")
-            return nextLevelManager
         end
     )
 end
@@ -81,7 +84,7 @@ function getCellEffect(maze, row, column, life)
             return 0
         end
     }
-    --
+
     --[[printMove(
         row,
         column,
@@ -93,21 +96,21 @@ function getCellEffect(maze, row, column, life)
     )]] return {
         life = lifeFunctions[cellValue](life),
         lose = lifeFunctions[cellValue](life) <= 0,
-        win = cellValue == "u"
+        win = (cellValue == "u")
     }
 end
 
 Directions = {
-    function(row, column)
+    ["N"] = function(row, column)
         return row, column + 1
     end,
-    function(row, column)
+    ["S"] = function(row, column)
         return row, column - 1
     end,
-    function(row, column)
+    ["E"] = function(row, column)
         return row + 1, column
     end,
-    function(row, column)
+    ["W"] = function(row, column)
         return row - 1, column
     end
 }
@@ -167,6 +170,14 @@ function printMove(row, column, life, cellValue, newLife, win, lost)
                                 " Cella " ..
                                     cellValue .. " Nuova vita " .. newLife .. " Vinto " .. win .. " Perso " .. lost
     )
+end
+
+function gameExport.printStep(label, life, maze)
+    print("-------------------------")
+    print(label)
+    print("Vita " .. life)
+    gameExport.printMaze(maze)
+    print("-------------------------")
 end
 
 return gameExport

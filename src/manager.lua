@@ -1,52 +1,5 @@
 local gameManagerExport = {}
-
-function scheduleNextMoves(managerTable, nextLevelManager)
-    for k, f in pairs(managerTable) do
-        nextLevelManager = f(nextLevelManager)
-    end
-    return nextLevelManager
-end
-
-function compareCellValues(managerTable)
-    local results =
-        map(
-        function(funToExec)
-            return {funResult = funToExec(), fun = funToExec}
-        end,
-        managerTable
-    )
-
-    local winningResults =
-        map(
-        function(singleTable)
-            return singleTable.funResult
-        end,
-        filter(
-            function(singleTable)
-                return singleTable.funResult.win
-            end,
-            results
-        )
-    )
-
-    managerTable =
-        map(
-        function(singleTable)
-            return singleTable.fun
-        end,
-        filter(
-            function(singleTable)
-                return not singleTable.funResult.lose and not singleTable.funResult.win
-            end,
-            results
-        )
-    )
-
-    if (#winningResults == 0) then
-        return nil, managerTable
-    end
-    return calcOptimalResult(winningResults), managerTable
-end
+local Game = require "game"
 
 function map(f, collection)
     local result = {}
@@ -66,12 +19,99 @@ function filter(f, collection)
     return result
 end
 
-function calcOptimalResult(resTable)
+function apply(f, collection)
+    for k, v in pairs(collection) do
+        f(v)
+    end
+end
+
+function getResultFunctionTable(functionTable)
+    local results =
+        map(
+        function(funToExec)
+            return {result = funToExec(), fun = funToExec}
+        end,
+        functionTable
+    )
+    return results
+end
+
+function getWinningResults(resultsWithFunctions)
+    local winningResultsWithFunctions =
+        filter(
+        function(singleResultWithFunction)
+            return singleResultWithFunction.result.win
+        end,
+        resultsWithFunctions
+    )
+
+    local winningResults =
+        map(
+        function(singleTable)
+            return singleTable.result
+        end,
+        winningResultsWithFunctions
+    )
+    return winningResults
+end
+
+function getToContinueFunctions(resultFunctionTable)
+    print("Funzioni prima del filter " .. #resultFunctionTable)
+    local toContinueResultsWithFunctions = -- potrebbe essere vuota
+        filter(
+        function(singleTable)
+            return ((not singleTable.result.lose) and (not singleTable.result.win))
+        end,
+        resultFunctionTable
+    )
+    print("Funzioni dopo il filter " .. #toContinueResultsWithFunctions)
+
+    local toContinueFunctions =
+        map(
+        function(singleTable)
+            return singleTable.fun
+        end,
+        toContinueResultsWithFunctions
+    )
+    return toContinueFunctions
+end
+
+function compareCellValues(managerTable)
+    local resultsWithFunctions = getResultFunctionTable(managerTable)
+    local winningResults = getWinningResults(resultsWithFunctions)
+    local toContinueFunctions = getToContinueFunctions(resultsWithFunctions)
+
+    return winningResults, toContinueFunctions
+end
+
+function scheduleNextMoves(functionsTable)
+    local nextLevelManager = gameManagerExport.getNewManagerTable()
+    for _, moveFunction in pairs(functionsTable) do --interagisco con ogni funzione che può continuare il gioco
+        for i = 1, 4 do
+            local nextMoveParams = moveFunction() --richiamo 4 volte le coroutine che mi danno i parametri per la prossima mossa
+            local nextMoveFunction =
+                Game.getMoveFunction(
+                nextMoveParams.newMaze,
+                nextMoveParams.newRow,
+                nextMoveParams.newColumn,
+                nextMoveParams.newSteps,
+                nextMoveParams.newLife
+            )
+            nextLevelManager = gameManagerExport.addFunction(nextLevelManager, nextMoveFunction) --aggiungo al manager le funzioni che gestiscono le prossime mosse
+        end
+    end
+    return nextLevelManager
+end
+
+function calcOptimalResult(resultsTable)
     local function func(tmpTable, minimum)
-        if (tmpTable == nil) then
+        if (next(tmpTable) == nil) then
             return minimum
         end
-        local localTable = deepCopyResultTable(tmpTable)
+        local localTable = {}
+        for _, v in pairs(tmpTable) do
+            table.insert(localTable, v)
+        end
         local head = table.remove(localTable, 1)
 
         if (minimum == nil) then
@@ -85,7 +125,7 @@ function calcOptimalResult(resTable)
         end
     end
 
-    return func(resTable, nil)
+    return func(resultsTable, nil)
 end
 
 function deepCopyResultTable(resultsTable)
@@ -99,31 +139,33 @@ function deepCopyResultTable(resultsTable)
     end
 end
 
-function gameManagerExport.executeMoves(managerTable)
-    local res, managerTable = compareCellValues(managerTable) --cicla i valori delle caselle dello scheduler e fa i confronti, non ancora funzionale
-    if (res) then
-        return res
+function gameManagerExport.executeMoves(managerTable, index)
+    print("Esecuzione di livello " .. index)
+    print("Celle da analizzare " .. #managerTable)
+    local winningResults, toContinueFunctions = compareCellValues(managerTable) --cicla i valori delle caselle dello scheduler e fa i confronti, non ancora funzionale
+
+    if next(winningResults) ~= nil then --ci sono caselle vincenti
+        print("Caselle vincenti " .. #winningResults)
+        return calcOptimalResult(winningResults)
     end
 
-    if (#managerTable == 0) then --non ancora funzionale
+    if next(toContinueFunctions) == nil then --non ci sono funzioni che possono proseguire a questo livello, hanno tutte perso o vinto
         return nil
     end
 
-    local nextLevelManager = gameManagerExport.getNewManagerTable()
-    nextLevelManager = scheduleNextMoves(managerTable, nextLevelManager) --popolo lo scheduler del livello successivo
-
-    return gameManagerExport.executeMoves(nextLevelManager)
+    -- non ci sono caselle vincenti a questo livello ma ci sono funzioni che possono proseguire
+    local nextLevelManagerTable = scheduleNextMoves(toContinueFunctions) --ottengo il manager contenente le funzioni delle caselle successive
+    return gameManagerExport.executeMoves(nextLevelManagerTable, index + 1)
 end
 
-function gameManagerExport.addFunction(managerTable, functionToAdd)
-    local newManagerTable = {}
-    if (#managerTable ~= 0) then
-        for k, v in pairs(managerTable) do
-            newManagerTable[k] = v
-        end
+function gameManagerExport.addFunction(functionsTable, functionToAdd)
+    local newFunctionsTable = {}
+    for _, fun in pairs(functionsTable) do
+        table.insert(newFunctionsTable, fun)
     end
-    table.insert(newManagerTable, functionToAdd)
-    return newManagerTable
+
+    table.insert(newFunctionsTable, functionToAdd)
+    return newFunctionsTable
 end
 
 function gameManagerExport.getNewManagerTable()

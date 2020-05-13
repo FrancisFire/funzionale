@@ -24,12 +24,12 @@ function IOExport.readFile(filename)
     return game
 end
 
-function IOExport.writeFile(game, rowStart, columnStart)
-    game.maze[rowStart][columnStart] = "i"
+function IOExport.writeFile(life, maze, rowStart, columnStart)
+    maze[rowStart][columnStart] = "i"
     local file = io.open("output.txt", "w")
-    file:write(game.life .. "\r")
+    file:write(life .. "\r")
     local row = ""
-    for r, column in ipairs(game.maze) do
+    for r, column in ipairs(maze) do
         for c, cell in ipairs(column) do
             row = row .. cell
         end
