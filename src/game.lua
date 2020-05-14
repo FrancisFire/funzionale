@@ -6,11 +6,13 @@ function gameExport.getMoveFunction(maze, row, column, steps, life)
             local newSteps = steps + 1
             local result = getCellEffect(maze, row, column, life)
             local newLife = result.life
-
+            if (result.lose) then
+                return {maze = maze, steps = newSteps, life = newLife, win = result.win, lose = result.lose}
+            end
             coroutine.yield({maze = maze, steps = newSteps, life = newLife, win = result.win, lose = result.lose}) -- ritorna l'analisi della casella
 
             local tracedMaze = traceMaze(maze, row, column)
-            for k, newDirection in pairs(Directions) do
+            for k, newDirection in pairs(gameExport.Directions) do
                 local newRow, newColumn = newDirection(row, column)
                 local futureParams = getCellEffect(tracedMaze, newRow, newColumn, newLife)
                 coroutine.yield(
@@ -29,7 +31,7 @@ function gameExport.getMoveFunction(maze, row, column, steps, life)
 end
 
 function traceMaze(maze, row, column)
-    local cloneMaze = cloneMaze(maze)
+    local cloneMaze = gameExport.cloneMaze(maze)
     cloneMaze[row][column] = "x"
     return cloneMaze
 end
@@ -94,7 +96,7 @@ function getCellEffect(maze, row, column, life)
     }
 end
 
-Directions = {
+gameExport.Directions = {
     ["N"] = function(row, column)
         return row, column + 1
     end,
@@ -131,11 +133,11 @@ function gameExport.getStart(maze)
     end
 end
 
-function cloneMaze(maze)
+function gameExport.cloneMaze(maze)
     local clone = {}
-    for r, column in ipairs(maze) do
+    for r, column in pairs(maze) do
         clone[r] = {}
-        for c, cell in ipairs(column) do
+        for c, cell in pairs(column) do
             clone[r][c] = cell
         end
     end
