@@ -17,15 +17,21 @@ function startUp(fileName)
     if (result ~= nil) then
         do
             local gameResult = {life = result.life, maze = result.maze}
-            Game.printStep("Risultato finale", gameResult.life, gameResult.maze)
-            Inputoutput.writeFile(gameResult.life, gameSet.maze, gameResult.maze, start.row, start.column)
+            Game.printStep("Risultato finale", gameResult.life, Game.getSolutionMaze(gameSet.maze, gameResult.maze))
+
+            Inputoutput.writeFile(
+                gameResult.life,
+                Game.getSolutionMaze(gameSet.maze, gameResult.maze),
+                start.row,
+                start.column
+            )
         end
     else
         do
             Game.printStep("Soluzione non presente", gameSet.life, gameSet.maze)
-            Inputoutput.writeFile(gameSet.life, gameSet.maze, gameSet.maze, start.row, start.column)
+            Inputoutput.writeFile(gameSet.life, gameSet.maze, start.row, start.column)
         end
     end
 end
 
-startUp("grosso.txt")
+startUp("mazes/grosso.txt")

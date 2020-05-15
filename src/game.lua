@@ -1,5 +1,27 @@
 local gameExport = {}
 
+function gameExport.DFSGame(maze, row, column, steps, life)
+    local newSteps = steps + 1
+    local result = getCellEffect(maze, row, column, life)
+    local newLife = result.life
+    if (result.lose or result.win) then
+        return {maze = maze, steps = newSteps, life = newLife, win = result.win, lose = result.lose}
+    end
+    local tracedMaze = traceMaze(maze, row, column)
+    local winningResults = {}
+    for k, newDirection in ipairs(gameExport.Directions) do
+        local newRow, newColumn = newDirection(row, column)
+        local nextResults = gameExport.DFSGame(tracedMaze, newRow, newColumn, newSteps, newLife)
+        if (nextResults.win) then
+            table.insert(winningResults, nextResults)
+        end
+    end
+    if (next(winningResults) == nil) then
+        return {maze = maze, steps = steps, life = life, win = false, lose = true}
+    end -- non sono presenti vincitori tra i vicini
+    return calcOptimalResult(winningResults) -- sono presenti vincitori, viene ritornato il migliore
+end
+
 function gameExport.getMoveFunction(maze, row, column, steps, life)
     return coroutine.wrap(
         function()
@@ -28,6 +50,31 @@ function gameExport.getMoveFunction(maze, row, column, steps, life)
             end
         end
     )
+end
+
+function calcOptimalResult(resultsTable)
+    local function func(tmpTable, minimum)
+        if (next(tmpTable) == nil) then
+            return minimum
+        end
+        local localTable = {}
+        for _, v in pairs(tmpTable) do
+            table.insert(localTable, v)
+        end
+        local head = table.remove(localTable, 1)
+
+        if (next(minimum) == nil) then -- la tabella risultati minima non esiste
+            return func(localTable, head)
+        else
+            if ((head.steps < minimum.steps) or (head.steps == minimum.steps and head.life < minimum.life)) then
+                return func(localTable, head)
+            else
+                return func(localTable, minimum)
+            end
+        end
+    end
+
+    return func(resultsTable, {})
 end
 
 function traceMaze(maze, row, column)
@@ -97,17 +144,17 @@ function getCellEffect(maze, row, column, life)
 end
 
 gameExport.Directions = {
-    ["N"] = function(row, column)
-        return row, column + 1
+    function(row, column)
+        return row, column + 1 -- Nord
     end,
-    ["S"] = function(row, column)
-        return row, column - 1
+    function(row, column)
+        return row, column - 1 -- Sud
     end,
-    ["E"] = function(row, column)
-        return row + 1, column
+    function(row, column)
+        return row + 1, column -- Est
     end,
-    ["W"] = function(row, column)
-        return row - 1, column
+    function(row, column)
+        return row - 1, column -- Ovest
     end
 }
 
@@ -174,6 +221,22 @@ function gameExport.printStep(label, life, maze)
     print("Vita " .. life)
     gameExport.printMaze(maze)
     print("-------------------------")
+end
+
+function gameExport.getSolutionMaze(originalMaze, tracedMaze)
+    local localMaze = gameExport.cloneMaze(originalMaze)
+    local start = gameExport.getStart(localMaze)
+
+    for r, column in pairs(tracedMaze) do
+        for c, cell in pairs(column) do
+            if (cell == "x") then
+                localMaze[r][c] = "x"
+            end
+        end
+    end
+
+    localMaze[start.row][start.column] = "i"
+    return localMaze
 end
 
 return gameExport

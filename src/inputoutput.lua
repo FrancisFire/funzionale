@@ -24,17 +24,7 @@ function IOExport.readFile(filename)
     return game
 end
 
-function IOExport.writeFile(life, maze, tracedMaze, rowStart, columnStart)
-    for r, column in pairs(tracedMaze) do
-        for c, cell in pairs(column) do
-            if (cell == "x") then
-                maze[r][c] = "x"
-            end
-        end
-    end
-
-    maze[rowStart][columnStart] = "i"
-
+function IOExport.writeFile(life, maze, rowStart, columnStart)
     local file = io.open("output.txt", "w")
     file:write(life .. "\r")
     local row = ""
