@@ -1,33 +1,10 @@
 local gameManagerExport = {}
 local Game = require "game"
-
-function map(f, collection)
-    local result = {}
-    for k, v in pairs(collection) do
-        table.insert(result, f(v))
-    end
-    return result
-end
-
-function filter(f, collection)
-    local result = {}
-    for _, v in pairs(collection) do
-        if (f(v)) then
-            table.insert(result, v)
-        end
-    end
-    return result
-end
-
-function apply(f, collection)
-    for k, v in pairs(collection) do
-        f(v)
-    end
-end
+local Utils = require "utils"
 
 function getResultFunctionTable(functionTable)
     local results =
-        map(
+        Utils.map(
         function(funToExec)
             return {result = funToExec(), fun = funToExec}
         end,
@@ -38,7 +15,7 @@ end
 
 function getWinningResults(resultsWithFunctions)
     local winningResultsWithFunctions =
-        filter(
+        Utils.filter(
         function(singleResultWithFunction)
             return singleResultWithFunction.result.win
         end,
@@ -46,7 +23,7 @@ function getWinningResults(resultsWithFunctions)
     )
 
     local winningResults =
-        map(
+        Utils.map(
         function(singleTable)
             return singleTable.result
         end,
@@ -56,18 +33,18 @@ function getWinningResults(resultsWithFunctions)
 end
 
 function getToContinueFunctions(resultFunctionTable)
-    --  print("Funzioni prima del filter " .. #resultFunctionTable)
+    --  print("Funzioni prima del Utils.filter " .. #resultFunctionTable)
     local toContinueResultsWithFunctions = -- potrebbe essere vuota
-        filter(
+        Utils.filter(
         function(singleResultWithFunction)
             return (not singleResultWithFunction.result.win)
         end,
         resultFunctionTable
     )
-    --  print("Funzioni dopo il filter " .. #toContinueResultsWithFunctions)
+    --  print("Funzioni dopo il Utils.filter " .. #toContinueResultsWithFunctions)
 
     local toContinueFunctions =
-        map(
+        Utils.map(
         function(singleTable)
             return singleTable.fun
         end,
@@ -94,7 +71,7 @@ function scheduleNextMoves(functionsTable)
 
             if (not nextMoveParams.willLose) then
                 local nextMoveFunction =
-                    Game.getMoveFunction(
+                    Game.BFSGame(
                     nextMoveParams.newMaze,
                     nextMoveParams.newRow,
                     nextMoveParams.newColumn,

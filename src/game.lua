@@ -1,4 +1,5 @@
 local gameExport = {}
+local Utils = require "utils"
 
 function gameExport.DFSGame(maze, row, column, steps, life)
     local newSteps = steps + 1
@@ -22,7 +23,7 @@ function gameExport.DFSGame(maze, row, column, steps, life)
     return calcOptimalResult(winningResults) -- sono presenti vincitori, viene ritornato il migliore
 end
 
-function gameExport.getMoveFunction(maze, row, column, steps, life)
+function gameExport.BFSGame(maze, row, column, steps, life)
     return coroutine.wrap(
         function()
             local newSteps = steps + 1
@@ -53,28 +54,16 @@ function gameExport.getMoveFunction(maze, row, column, steps, life)
 end
 
 function calcOptimalResult(resultsTable)
-    local function func(tmpTable, minimum)
-        if (next(tmpTable) == nil) then
-            return minimum
-        end
-        local localTable = {}
-        for _, v in pairs(tmpTable) do
-            table.insert(localTable, v)
-        end
-        local head = table.remove(localTable, 1)
-
-        if (next(minimum) == nil) then -- la tabella risultati minima non esiste
-            return func(localTable, head)
-        else
-            if ((head.steps < minimum.steps) or (head.steps == minimum.steps and head.life < minimum.life)) then
-                return func(localTable, head)
-            else
-                return func(localTable, minimum)
-            end
-        end
+    local function compare(firstResult, secondResult)
+        return (firstResult == nil) and secondResult or
+            ((secondResult == nil) and firstResult or
+                (((firstResult.steps < secondResult.steps) or
+                    (firstResult.steps == secondResult.steps and firstResult.life < secondResult.life)) and
+                    firstResult or
+                    secondResult))
     end
 
-    return func(resultsTable, {})
+    return Utils.reduce(compare, resultsTable)
 end
 
 function traceMaze(maze, row, column)

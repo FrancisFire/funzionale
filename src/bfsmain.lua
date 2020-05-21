@@ -9,7 +9,7 @@ function startUp(fileName)
     Game.printStep("Avvio", gameSet.life, reducedMaze)
 
     local rootManagerTable = Manager.getNewManagerTable()
-    local rootMoveFunction = Game.getMoveFunction(reducedMaze, start.row, start.column, 0, gameSet.life)
+    local rootMoveFunction = Game.BFSGame(reducedMaze, start.row, start.column, 0, gameSet.life)
 
     rootManagerTable = Manager.addFunction(rootManagerTable, rootMoveFunction)
     local result = Manager.executeMoves(rootManagerTable, 1)
@@ -34,4 +34,4 @@ function startUp(fileName)
     end
 end
 
-startUp("mazes/grosso.txt")
+startUp("mazes/progetto.txt")
