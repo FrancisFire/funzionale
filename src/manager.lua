@@ -138,8 +138,8 @@ function gameManagerExport.executeMoves(managerTable, index)
     end
 
     -- non ci sono caselle vincenti a questo livello ma ci sono funzioni che possono proseguire
-    local nextLevelManagerTable = scheduleNextMoves(toContinueFunctions) --ottengo il manager contenente le funzioni delle caselle successive
-    return gameManagerExport.executeMoves(nextLevelManagerTable, index + 1)
+    local managerTable = scheduleNextMoves(toContinueFunctions) --ottengo il manager contenente le funzioni delle caselle successive
+    return gameManagerExport.executeMoves(managerTable, index + 1)
 end
 
 function gameManagerExport.addFunction(functionsTable, functionToAdd)

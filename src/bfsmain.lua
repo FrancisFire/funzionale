@@ -34,4 +34,4 @@ function startUp(fileName)
     end
 end
 
-startUp("mazes/progetto.txt")
+startUp("mazes/grosso.txt")
