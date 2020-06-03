@@ -1,10 +1,13 @@
+local Maze = require "mazeobject"
+
 local IOExport = {}
 
 function IOExport.readFile(filename)
     local game = {}
 
     local row = 0
-    game.maze = {}
+    game.maze = Maze.new()
+
     for line in io.lines(filename, "l") do
         line = string.gsub(line, "\r", "")
         local column = 1
