@@ -68,7 +68,7 @@ end
 
 function traceMaze(maze, row, column)
     local cloneMaze = gameExport.cloneMaze(maze)
-    cloneMaze[row][column] = "x"
+    cloneMaze[row][column] = "*"
     return cloneMaze
 end
 
@@ -120,7 +120,7 @@ function getCellEffect(maze, row, column, life)
         ["p"] = function(life)
             return 0
         end,
-        ["x"] = function(life)
+        ["*"] = function(life)
             return 0
         end
     }
@@ -218,8 +218,8 @@ function gameExport.getSolutionMaze(originalMaze, tracedMaze)
 
     for r, column in pairs(tracedMaze) do
         for c, cell in pairs(column) do
-            if (cell == "x") then
-                localMaze[r][c] = "x"
+            if (cell == "*") then
+                localMaze[r][c] = "*"
             end
         end
     end
