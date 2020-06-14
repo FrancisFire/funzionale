@@ -19,7 +19,6 @@ function utilsExport.filter(f, collection)
 end
 
 function utilsExport.reduce(f, collection)
-    local result = {}
     local r = nil
     for _, v in pairs(collection) do
         r = f(r, v)
