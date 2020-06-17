@@ -10,12 +10,9 @@ end
 Manager.__index = Manager
 
 Manager.executeMoves = function(self, index)
-    -- print("Esecuzione di livello " .. index)
-    --  print("Celle da analizzare " .. #managerTable)
-    local winningResults, toContinueFunctions = self:compareCellValues() --cicla i valori delle caselle dello scheduler e fa i confronti, non ancora funzionale
+    local winningResults, toContinueFunctions = self:compareCellValues()
 
     if next(winningResults) ~= nil then --ci sono caselle vincenti
-        --     print("Caselle vincenti " .. #winningResults)
         return Game.calcOptimalResult(winningResults)
     end
 
@@ -77,7 +74,6 @@ function getWinningResults(resultsWithFunctions)
 end
 
 function getToContinueFunctions(resultFunctionTable)
-    --  print("Funzioni prima del Utils.filter " .. #resultFunctionTable)
     local toContinueResultsWithFunctions = -- potrebbe essere vuota
         Utils.filter(
         function(singleResultWithFunction)
@@ -85,7 +81,6 @@ function getToContinueFunctions(resultFunctionTable)
         end,
         resultFunctionTable
     )
-    --  print("Funzioni dopo il Utils.filter " .. #toContinueResultsWithFunctions)
 
     local toContinueFunctions =
         Utils.map(
@@ -98,8 +93,6 @@ function getToContinueFunctions(resultFunctionTable)
 end
 
 function scheduleNextMoves(toContinueFunctions)
-    --   print("Funzioni prima dello schedule " .. #functionsTable)
-
     local nextLevelManager = Manager.new()
     for _, moveFunction in pairs(toContinueFunctions) do --interagisco con ogni funzione che può continuare il gioco
         for i = 1, 4 do
@@ -118,7 +111,6 @@ function scheduleNextMoves(toContinueFunctions)
             end
         end
     end
-    --   print("Funzioni dopo lo schedule " .. #nextLevelManager)
 
     return nextLevelManager
 end

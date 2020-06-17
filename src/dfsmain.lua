@@ -14,4 +14,4 @@ function startUp(fileName)
     Inputoutput.writeFile(result.life, (gameSet.maze + result.maze), start.row, start.column)
 end
 
-startUp("mazes/input.txt")
+startUp("mazes/grosso.txt")

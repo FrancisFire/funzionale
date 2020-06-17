@@ -54,7 +54,7 @@ Maze.getGoals = function(self)
     return goals
 end
 
-Maze.__add = function(firstMaze, secondMaze)
+Maze.__add = function(firstMaze, secondMaze) -- aggiunge la traccia del secondMaze al firstMaze
     local localMaze = firstMaze:clone()
     local start = localMaze:getStart()
 
@@ -165,20 +165,15 @@ function reduce(maze, r, c)
     if (not admissible(localMaze[r][c])) then
         return localMaze
     end
-    -- print(maze)
-    -- print("---------------------")
     local next = nil
     for k, newDir in pairs(Game.Directions) do
         local x, y = newDir(r, c)
-        -- print("r " .. r .. " c " .. c .. " x " .. x .. " y " .. y)
         local nextCell = localMaze[x][y]
         if (nextCell ~= "m") then
             if (next == nil) then
-                -- print("free")
                 next = newDir
             else
                 next = nil
-                --  print("break")
                 break
             end
         end
